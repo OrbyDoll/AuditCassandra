@@ -13,9 +13,11 @@ import org.springframework.data.cassandra.CassandraInvalidQueryException;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
+import org.springframework.test.context.TestPropertySource;
 import org.testcontainers.containers.CassandraContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
+
 import java.time.LocalDate;
 import java.time.ZoneOffset;
 import java.util.UUID;
@@ -26,6 +28,12 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @SpringBootTest(classes = {Application.class, ApplicationConfig.class})
 @Testcontainers
+@TestPropertySource(properties = {
+    "spring.cassandra.contact-points=127.0.0.1",
+    "spring.cassandra.port=9042",
+    "spring.cassandra.keyspace-name=my_keyspace",
+    "spring.cassandra.local-datacenter=datacenter1"
+})
 @ActiveProfiles("test")
 public class RecordsRepositoryTest {
   @Container
