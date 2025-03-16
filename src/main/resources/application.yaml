@@ -2,5 +2,5 @@ spring:
   cassandra:
     keyspace-name: my_keyspace
     contact-points: 127.0.0.1
-    local-datacenter: notebook
+    local-datacenter: datacenter1
     port: 9042
