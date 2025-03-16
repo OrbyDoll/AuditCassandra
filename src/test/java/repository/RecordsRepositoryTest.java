@@ -7,12 +7,14 @@ import org.example.model.Record;
 import org.example.repository.RecordsRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.cassandra.CassandraInvalidQueryException;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.testcontainers.containers.CassandraContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
@@ -24,14 +26,16 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+@ExtendWith(SpringExtension.class)
 @SpringBootTest(classes = {Application.class, ApplicationConfig.class})
 @Testcontainers
-@ActiveProfiles("application-test")
+@ActiveProfiles("test")
 public class RecordsRepositoryTest {
   @Container
   private static final CassandraContainer<?> cassandraContainer =
       new CassandraContainer<>("cassandra:3.11.2")
-          .withExposedPorts(9042);
+          .withExposedPorts(9042)
+          .withEnv("CASSANDRA_KEYSPACE", "my_keyspace");
   @Autowired
   private RecordsRepository recordsRepository;
 
