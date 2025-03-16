@@ -5,6 +5,7 @@ import org.example.ApplicationConfig;
 import org.example.model.Action;
 import org.example.model.Record;
 import org.example.repository.RecordsRepository;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -14,7 +15,7 @@ import org.springframework.data.cassandra.CassandraInvalidQueryException;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.test.context.TestPropertySource;
 import org.testcontainers.containers.CassandraContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
@@ -27,7 +28,13 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @SpringBootTest(classes = {Application.class, ApplicationConfig.class})
-@Testcontainers(disabledWithoutDocker = true)
+@Testcontainers
+@TestPropertySource(properties = {
+    "spring.cassandra.contact-points=127.0.0.1",
+    "spring.cassandra.port=9042",
+    "spring.cassandra.keyspace-name=test_keyspace",
+    "spring.cassandra.local-datacenter=datacenter1" // переименовывать не нужно, значение datacenter1 используется для тестов
+})
 @ActiveProfiles("test")
 public class RecordsRepositoryTest {
   @Container
@@ -44,6 +51,18 @@ public class RecordsRepositoryTest {
     registry.add("spring.data.cassandra.contact-points", () -> contactPoint);
     registry.add("spring.data.cassandra.local-datacenter", () -> "datacenter1");
     registry.add("spring.data.cassandra.keyspace-name", () -> "my_keyspace");
+  }
+
+  @BeforeAll
+  static void setupCassandraConnectionProperties() {
+    System.setProperty("spring.cassandra.keyspace-name", "my_keyspace");
+    System.setProperty(
+        "spring.cassandra.contact-points", cassandraContainer.getContainerIpAddress());
+    System.setProperty(
+        "spring.cassandra.port", String.valueOf(cassandraContainer.getMappedPort(9042)));
+
+    System.out.println("Cassandra container IP: " + cassandraContainer.getContainerIpAddress());
+    System.out.println("Cassandra container port: " + cassandraContainer.getMappedPort(9042));
   }
 
   @Test
