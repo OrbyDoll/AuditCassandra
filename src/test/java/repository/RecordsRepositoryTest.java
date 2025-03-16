@@ -9,6 +9,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.cassandra.CassandraInvalidQueryException;
+import org.springframework.test.context.DynamicPropertyRegistry;
+import org.springframework.test.context.DynamicPropertySource;
 import org.testcontainers.containers.CassandraContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
@@ -29,6 +31,14 @@ public class RecordsRepositoryTest {
           .withExposedPorts(9042);
   @Autowired
   private RecordsRepository recordsRepository;
+
+  @DynamicPropertySource
+  static void cassandraProperties(DynamicPropertyRegistry registry) {
+    String contactPoint = cassandraContainer.getHost() + ":" + cassandraContainer.getMappedPort(9042);
+    registry.add("spring.data.cassandra.contact-points", () -> contactPoint);
+    registry.add("spring.data.cassandra.local-datacenter", () -> "datacenter1");
+    registry.add("spring.data.cassandra.keyspace-name", () -> "my_keyspace");
+  }
 
   @Test
   @DisplayName("Тест на успешное добавление записи")
