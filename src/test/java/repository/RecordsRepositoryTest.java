@@ -1,6 +1,7 @@
 package repository;
 
 import org.example.Application;
+import org.example.ApplicationConfig;
 import org.example.model.Action;
 import org.example.model.Record;
 import org.example.repository.RecordsRepository;
@@ -22,7 +23,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-@SpringBootTest(classes = Application.class)
+@SpringBootTest(classes = {Application.class, ApplicationConfig.class})
 @Testcontainers
 public class RecordsRepositoryTest {
   @Container
