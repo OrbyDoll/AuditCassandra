@@ -10,6 +10,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.cassandra.CassandraInvalidQueryException;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.testcontainers.containers.CassandraContainer;
@@ -25,6 +26,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @SpringBootTest(classes = {Application.class, ApplicationConfig.class})
 @Testcontainers
+@ActiveProfiles("application-test")
 public class RecordsRepositoryTest {
   @Container
   private static final CassandraContainer<?> cassandraContainer =
