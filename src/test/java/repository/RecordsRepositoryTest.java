@@ -13,12 +13,11 @@ import org.springframework.data.cassandra.CassandraInvalidQueryException;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
-import org.springframework.test.context.TestPropertySource;
 import org.testcontainers.containers.CassandraContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
-
-import java.sql.Timestamp;
+import java.time.LocalDate;
+import java.time.ZoneOffset;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -27,12 +26,6 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @SpringBootTest(classes = {Application.class, ApplicationConfig.class})
 @Testcontainers
-@TestPropertySource(properties = {
-    "spring.cassandra.contact-points=127.0.0.1",
-    "spring.cassandra.port=9042",
-    "spring.cassandra.keyspace-name=my_keyspace",
-    "spring.cassandra.local-datacenter=datacenter1"
-})
 @ActiveProfiles("test")
 public class RecordsRepositoryTest {
   @Container
@@ -56,7 +49,7 @@ public class RecordsRepositoryTest {
   void test1() {
     Record record = new Record(
         UUID.randomUUID(),
-        new Timestamp(System.currentTimeMillis()),
+        LocalDate.parse("2024-12-31").atTime(10, 10).toInstant(ZoneOffset.UTC),
         Action.INSERT,
         "Имитация вставки от пользователя"
     );
@@ -73,7 +66,7 @@ public class RecordsRepositoryTest {
   void test2() {
     Record record = new Record(
         null,
-        new Timestamp(System.currentTimeMillis()),
+        LocalDate.parse("2024-12-31").atTime(10, 10).toInstant(ZoneOffset.UTC),
         Action.INSERT,
         "Имитация вставки от пользователя"
     );
@@ -85,7 +78,7 @@ public class RecordsRepositoryTest {
   void test3() {
     Record record = new Record(
         UUID.randomUUID(),
-        new Timestamp(System.currentTimeMillis()),
+        LocalDate.parse("2024-12-31").atTime(10, 10).toInstant(ZoneOffset.UTC),
         Action.INSERT,
         "Имитация вставки от пользователя"
     );

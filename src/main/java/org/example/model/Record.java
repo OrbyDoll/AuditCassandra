@@ -9,6 +9,7 @@ import org.springframework.data.cassandra.core.mapping.PrimaryKeyColumn;
 import org.springframework.data.cassandra.core.mapping.Table;
 
 import java.sql.Timestamp;
+import java.time.Instant;
 import java.util.UUID;
 
 @AllArgsConstructor
@@ -21,7 +22,7 @@ public class Record {
 
   @Getter
   @PrimaryKeyColumn(name = "event_time", ordinal = 1, type = PrimaryKeyType.CLUSTERED, ordering = Ordering.DESCENDING)
-  private Timestamp event_time;
+  private Instant event_time;
 
   @Getter
   @Column(value = "event_type")
