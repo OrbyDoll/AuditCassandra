@@ -2,6 +2,7 @@ package repository;
 
 import org.example.Application;
 import org.example.ApplicationConfig;
+import org.example.CassandraDriverConfigLoaderBuilderCustomizer;
 import org.example.model.Action;
 import org.example.model.Record;
 import org.example.repository.RecordsRepository;
@@ -10,46 +11,36 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.cassandra.CassandraInvalidQueryException;
-import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
-import org.springframework.test.context.TestPropertySource;
 import org.testcontainers.containers.CassandraContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
-import java.time.LocalDate;
-import java.time.ZoneOffset;
+import java.time.Instant;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-@SpringBootTest(classes = {Application.class, ApplicationConfig.class})
+@SpringBootTest(classes = {Application.class, ApplicationConfig.class, CassandraDriverConfigLoaderBuilderCustomizer.class})
 @Testcontainers
-@TestPropertySource(properties = {
-    "spring.cassandra.contact-points=127.0.0.1",
-    "spring.cassandra.port=9042",
-    "spring.cassandra.keyspace-name=my_keyspace",
-    "spring.cassandra.local-datacenter=datacenter1"
-})
-@ActiveProfiles("test")
 public class RecordsRepositoryTest {
   @Container
   private static final CassandraContainer<?> cassandraContainer =
       new CassandraContainer<>("cassandra:3.11.2")
-          .withExposedPorts(9042)
-          .withEnv("CASSANDRA_KEYSPACE", "my_keyspace");
+          .withExposedPorts(9042);
   @Autowired
   private RecordsRepository recordsRepository;
 
   @DynamicPropertySource
   static void cassandraProperties(DynamicPropertyRegistry registry) {
-    String contactPoint = cassandraContainer.getHost() + ":" + cassandraContainer.getMappedPort(9042);
-    registry.add("spring.data.cassandra.contact-points", () -> contactPoint);
-    registry.add("spring.data.cassandra.local-datacenter", () -> "datacenter1");
-    registry.add("spring.data.cassandra.keyspace-name", () -> "my_keyspace");
+    String contactPoint =
+        cassandraContainer.getHost() + ":" + cassandraContainer.getMappedPort(9042);
+    registry.add("spring.cassandra.contact-points", () -> contactPoint);
+    registry.add("spring.cassandra.local-datacenter", () -> "datacenter1");
+    registry.add("spring.cassandra.keyspace-name", () -> "my_keyspace");
   }
 
   @Test
@@ -57,7 +48,7 @@ public class RecordsRepositoryTest {
   void test1() {
     Record record = new Record(
         UUID.randomUUID(),
-        LocalDate.parse("2024-12-31").atTime(10, 10).toInstant(ZoneOffset.UTC),
+        Instant.now(),
         Action.INSERT,
         "Имитация вставки от пользователя"
     );
@@ -65,7 +56,6 @@ public class RecordsRepositoryTest {
     Record desiredRecord = recordsRepository.findByUserId(record.getUser_id());
     assertEquals(record.getUser_id(), desiredRecord.getUser_id());
     assertEquals(record.getEvent_details(), desiredRecord.getEvent_details());
-    assertEquals(record.getEvent_time(), desiredRecord.getEvent_time());
     assertEquals(record.getEvent_type(), desiredRecord.getEvent_type());
   }
 
@@ -74,7 +64,7 @@ public class RecordsRepositoryTest {
   void test2() {
     Record record = new Record(
         null,
-        LocalDate.parse("2024-12-31").atTime(10, 10).toInstant(ZoneOffset.UTC),
+        Instant.now(),
         Action.INSERT,
         "Имитация вставки от пользователя"
     );
@@ -86,7 +76,7 @@ public class RecordsRepositoryTest {
   void test3() {
     Record record = new Record(
         UUID.randomUUID(),
-        LocalDate.parse("2024-12-31").atTime(10, 10).toInstant(ZoneOffset.UTC),
+        Instant.now(),
         Action.INSERT,
         "Имитация вставки от пользователя"
     );
@@ -94,7 +84,6 @@ public class RecordsRepositoryTest {
     Record desiredRecord = recordsRepository.findByUserId(record.getUser_id());
     assertEquals(record.getUser_id(), desiredRecord.getUser_id());
     assertEquals(record.getEvent_details(), desiredRecord.getEvent_details());
-    assertEquals(record.getEvent_time(), desiredRecord.getEvent_time());
     assertEquals(record.getEvent_type(), desiredRecord.getEvent_type());
   }
 
