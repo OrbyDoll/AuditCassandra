@@ -9,6 +9,7 @@ import org.example.model.Message;
 import org.example.model.Record;
 import org.example.service.KafkaConsumerService;
 import org.example.service.RecordsService;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.kafka.KafkaAutoConfiguration;
@@ -28,6 +29,7 @@ import java.time.Duration;
 import java.time.Instant;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.testcontainers.shaded.org.awaitility.Awaitility.await;
 
@@ -68,7 +70,8 @@ class KafkaConsumerServiceTest {
   }
 
   @Test
-  void shouldSendMessageToKafkaSuccessfully() throws Exception {
+  @DisplayName("Тест на успешное получения сообщения")
+  void test1() throws Exception {
     Message message = new Message(1L, Instant.now(), Action.INSERT, "Testing");
     Record expectedRecord = new Record(message);
     kafkaTemplate.send("audit-topic", objectMapper.writeValueAsString(message));
@@ -82,6 +85,22 @@ class KafkaConsumerServiceTest {
               assertTrue(
                   expectedRecord.getEvent_time().isAfter(recievedRecord.getEvent_time()));
               assertEquals(expectedRecord.getEvent_details(), recievedRecord.getEvent_details());
+            }
+        );
+  }
+
+  @Test
+  @DisplayName("Тест на получение несуществующей записи")
+  void test2() throws Exception {
+    Message message = new Message(1L, Instant.now(), Action.INSERT, "Testing");
+    Record expectedRecord = new Record(message);
+    kafkaTemplate.send("audit-topic", objectMapper.writeValueAsString(message));
+
+    await().atMost(Duration.ofSeconds(10))
+        .pollDelay(Duration.ofMillis(500))
+        .untilAsserted(() -> {
+              Record recievedRecord = recordsService.getRecordById(2L);
+              assertNull(recievedRecord);
             }
         );
   }
