@@ -1,9 +1,12 @@
 package org.example;
+
 import com.datastax.oss.driver.api.core.CqlIdentifier;
 import com.datastax.oss.driver.api.core.CqlSession;
 import com.datastax.oss.driver.api.core.CqlSessionBuilder;
 import com.datastax.oss.driver.api.core.cql.SimpleStatement;
 import com.datastax.oss.driver.api.querybuilder.SchemaBuilder;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -12,6 +15,11 @@ import java.util.Map;
 
 @Configuration
 public class ApplicationConfig {
+  @Bean
+  public ObjectMapper objectMapper() {
+    return new ObjectMapper().registerModule(new JavaTimeModule());
+  }
+
   @Bean
   public CqlSession cqlSession(CqlSessionBuilder sessionBuilder) {
 
@@ -29,15 +37,15 @@ public class ApplicationConfig {
     session.execute(statement);
 
     session.execute("""
-                CREATE TABLE IF NOT EXISTS my_keyspace.user_audit (
-                    user_id UUID,               -- Идентификатор пользователя (данные будут распределены по юзерам)
-                    event_time TIMESTAMP,       -- Время события (используется для уникальности так и для сортировки)
-                    event_type TEXT,            -- Тип события (например, "INSERT", "DELETE")
-                    event_details TEXT,         -- Детали события
-                    PRIMARY KEY ((user_id), event_time)
-                ) WITH CLUSTERING ORDER BY (event_time DESC)
-                   AND default_time_to_live = 2592000;
-                """);
+        CREATE TABLE IF NOT EXISTS my_keyspace.user_audit (
+            user_id BIGINT,               -- Идентификатор пользователя (данные будут распределены по юзерам)
+            event_time TIMESTAMP,       -- Время события (используется для уникальности так и для сортировки)
+            event_type TEXT,            -- Тип события (например, "INSERT", "DELETE")
+            event_details TEXT,         -- Детали события
+            PRIMARY KEY ((user_id), event_time)
+        ) WITH CLUSTERING ORDER BY (event_time DESC)
+           AND default_time_to_live = 2592000;
+        """);
 
     return sessionBuilder
         .withKeyspace("my_keyspace")

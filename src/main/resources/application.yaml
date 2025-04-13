@@ -4,3 +4,9 @@ spring:
     contact-points: 127.0.0.1
     local-datacenter: datacenter1
     port: 9042
+  kafka:
+    bootstrap-servers: localhost:29093
+    consumer:
+      group-id: audit-group
+      enable-auto-commit: true
+topic-to-consume-message: audit-topic

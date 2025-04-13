@@ -18,7 +18,6 @@ import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
 import java.time.Instant;
-import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -47,7 +46,7 @@ public class RecordsRepositoryTest {
   @DisplayName("Тест на успешное добавление записи")
   void test1() {
     Record record = new Record(
-        UUID.randomUUID(),
+        1L,
         Instant.now(),
         Action.INSERT,
         "Имитация вставки от пользователя"
@@ -75,7 +74,7 @@ public class RecordsRepositoryTest {
   @DisplayName("Тест на успешное получение записи")
   void test3() {
     Record record = new Record(
-        UUID.randomUUID(),
+        2L,
         Instant.now(),
         Action.INSERT,
         "Имитация вставки от пользователя"
@@ -90,6 +89,6 @@ public class RecordsRepositoryTest {
   @Test
   @DisplayName("Тест на неудачное получение записи")
   void test4() {
-    assertNull(recordsRepository.findByUserId(UUID.randomUUID()));
+    assertNull(recordsRepository.findByUserId(100L));
   }
 }

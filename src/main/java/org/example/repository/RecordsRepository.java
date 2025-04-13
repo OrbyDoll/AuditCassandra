@@ -5,10 +5,8 @@ import org.springframework.data.cassandra.repository.CassandraRepository;
 import org.springframework.data.cassandra.repository.Query;
 import org.springframework.stereotype.Repository;
 
-import java.util.UUID;
-
 @Repository
 public interface RecordsRepository extends CassandraRepository<Record, String> {
   @Query("SELECT * FROM user_audit WHERE user_id = ?0")
-  Record findByUserId(UUID userId);
+  Record findByUserId(Long userId);
 }
